@@ -12,6 +12,8 @@
 #include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
+#include <dwt.h>
+
 static libtock_alarm_t alarm;
 static bool light          = false;
 static bool temperature    = false;
@@ -40,7 +42,13 @@ static void alarm_cb(__attribute__ ((unused)) uint32_t now,
 
   /* *INDENT-OFF* */
   if (light)          libtocksync_ambient_light_read_intensity(&lite);
-  if (temperature)    libtocksync_temperature_read(&temp);
+  if (temperature)    
+  {
+	start_cycle_counter();  
+	libtocksync_temperature_read(&temp);
+	uint32_t end = get_cycle_count();
+	printf("[EVAL] libtocksync_temperature_read %i\n", end);
+  }
   if (humidity)       libtocksync_humidity_read(&humi);
   if (ninedof_accel)  libtocksync_ninedof_read_accelerometer(&ninedof_accel_x, &ninedof_accel_y, &ninedof_accel_z);
   if (ninedof_mag)    libtocksync_ninedof_read_magnetometer(&ninedof_magneto_x, &ninedof_magneto_y, &ninedof_magneto_z);
