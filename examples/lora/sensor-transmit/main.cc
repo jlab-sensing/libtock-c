@@ -42,19 +42,22 @@ int main(void) {
   // radio->XTAL = true;
 
   // receiver is s1262 with parameters:
-  int16_t state = radio->begin(915, 125, 7, 5, 0x34, 0, 8);
-  
-  // todo: parameters: 
-  // int state = radio->begin(7, 18, 8, 1.6);
+int16_t state = radio->begin(
+    915.0,   // MHz
+    125.0,   // kHz
+    7,       // spreading factor
+    5,       // coding rate 4/5
+    0x34,    // sync word (LoRaWAN)
+    14,      // power in dBm (max 14 for STM32WL/SX1261)
+    8        // preamble length
+);
 
-  printf("a\n");
-  state = radio->setDio2AsRfSwitch(true);
-  assert(state == RADIOLIB_ERR_NONE);
-  state = radio->setCurrentLimit(140.0);
-  assert(state == RADIOLIB_ERR_NONE);
-  state = radio->explicitHeader();
-  assert(state == RADIOLIB_ERR_NONE);
-  radio->setCRC(2); // 2 bytes CRC
+radio->setDio2AsRfSwitch(false);
+// radio->setDio3AsTcxoCtrl(RADIOLIB_SX126X_TCXO_CTRL_1_8V);
+radio->setCurrentLimit(60.0);
+radio->explicitHeader();
+radio->setCRC(2);
+
   
   printf("[SX1261] Radio setup\n");
   if (state != RADIOLIB_ERR_NONE) {
