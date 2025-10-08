@@ -37,6 +37,7 @@
 #include "libtock/peripherals/gpio.h"
 #include "libtock-sync/services/alarm.h"
 #include "libtock/kernel/read_only_state.h"
+#include <assert.h>
 
 #define RADIOLIB_RADIO_BUSY   1
 #define RADIOLIB_RADIO_DIO_1  2
@@ -191,7 +192,8 @@ class TockRadioLibHal : public RadioLibHal {
     }
 
     void spiTransfer(uint8_t* out, size_t len, uint8_t* in) {
-      libtocksync_lora_phy_read_write(out, in, len);
+      int ret = libtocksync_lora_phy_read_write(out, in, len);
+      assert(ret == 0);
     }
 
     void spiEndTransaction() {

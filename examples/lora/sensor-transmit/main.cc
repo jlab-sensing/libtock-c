@@ -13,8 +13,6 @@
 #include "libtockHal.h"
 
 // Include some libtock-c helpers
-#include <libtock-sync/sensors/humidity.h>
-#include <libtock-sync/sensors/temperature.h>
 
 #define BUFFER_LEN 64
 
@@ -37,11 +35,28 @@ int main(void) {
                                    RADIOLIB_RADIO_BUSY);
   SX1262* radio = new SX1262(tock_module);
 
+
+  printf("[SX1261] Setting up Radio ... \n");
   // Setup the radio
   // The settings here work for the SparkFun LoRa Thing Plus - expLoRaBLE
-  radio->XTAL = true;
-  int state = radio->begin(915.0);
+  // radio->XTAL = true;
 
+  // receiver is s1262 with parameters:
+  int16_t state = radio->begin(915, 125, 7, 5, 0x34, 0, 8);
+  
+  // todo: parameters: 
+  // int state = radio->begin(7, 18, 8, 1.6);
+
+  printf("a\n");
+  state = radio->setDio2AsRfSwitch(true);
+  assert(state == RADIOLIB_ERR_NONE);
+  state = radio->setCurrentLimit(140.0);
+  assert(state == RADIOLIB_ERR_NONE);
+  state = radio->explicitHeader();
+  assert(state == RADIOLIB_ERR_NONE);
+  radio->setCRC(2); // 2 bytes CRC
+  
+  printf("[SX1261] Radio setup\n");
   if (state != RADIOLIB_ERR_NONE) {
     printf("failed, code %d\r\n", state);
     return 1;
@@ -56,16 +71,12 @@ int main(void) {
     // Ensure there are no pending callbacks
     yield_no_wait();
 
-    // Read some sensor data from the board
-    libtocksync_temperature_read(&temp);
-    libtocksync_humidity_read(&humi);
-
-    snprintf(buffer, BUFFER_LEN, "Temp: %d, Hum: %u", temp, humi);
+    snprintf(buffer, BUFFER_LEN, "Hello from ents over LoRa!\r\n");
 
     // send a packet
-    printf("[SX1261] Transmitting '%s' \r\n", buffer);
+    printf("[SX1261] Transmitting hello from ents over LoRa!\r\n");
 
-    state = radio->transmit(buffer);
+    state = radio->transmit((const uint8_t*)buffer, strlen(buffer));
 
     if (state == RADIOLIB_ERR_NONE) {
       // the packet was successfully transmitted
