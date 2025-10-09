@@ -53,7 +53,6 @@ int16_t state = radio->begin(
 );
 
 radio->setDio2AsRfSwitch(false);
-// radio->setDio3AsTcxoCtrl(RADIOLIB_SX126X_TCXO_CTRL_1_8V);
 radio->setCurrentLimit(60.0);
 radio->explicitHeader();
 radio->setCRC(2);
