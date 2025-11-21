@@ -4,7 +4,7 @@
 TOCK_USERLAND_BASE_DIR = ../../..
 
 # Which files to compile.
-C_SRCS := $(wildcard *.c)
+C_SRCS := main.c ads1219.c
 
 STACK_SIZE := 2048
 
