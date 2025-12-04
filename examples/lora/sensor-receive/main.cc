@@ -33,10 +33,21 @@ int main(void) {
                                    RADIOLIB_RADIO_BUSY);
   SX1262* radio = new SX1262(tock_module);
 
-  // Setup the radio
-  // The settings here work for the SparkFun LoRa Thing Plus - expLoRaBLE
-  radio->XTAL = true;
-  int state = radio->begin(915.0);
+int16_t state = radio->begin(
+    915.0,   // MHz
+    125.0,   // kHz
+    7,       // spreading factor
+    5,       // coding rate 4/5
+    0x34,    // sync word (LoRaWAN)
+    14,      // power in dBm (max 14 for STM32WL/SX1261)
+    8        // preamble length
+);
+
+radio->setDio2AsRfSwitch(false);
+radio->setCurrentLimit(60.0);
+radio->explicitHeader();
+radio->setCRC(2);
+
 
   if (state != RADIOLIB_ERR_NONE) {
     printf("failed, code %d\r\n", state);

@@ -31,7 +31,7 @@ int main(void) {
   // DIO1 pin:  2
   // NRST pin:  4
   // BUSY pin:  1
-  Module* tock_module = new Module(hal, RADIOLIB_RADIO_NSS, RADIOLIB_RADIO_DIO_1, RADIOLIB_RADIO_RESET,
+  Module* tock_module = new Module(hal, RADIOLIB_RADIO_NSS, RADIOLIB_RADIO_DIO_1, RADIOLIB_RADIO_NSS,
                                    RADIOLIB_RADIO_BUSY);
   SX1262* radio = new SX1262(tock_module);
 
