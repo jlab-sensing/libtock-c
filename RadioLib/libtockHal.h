@@ -26,7 +26,7 @@
 
 #ifndef TOCK_RADIOLIB_HAL_H
 #define TOCK_RADIOLIB_HAL_H
-
+ 
 // include RadioLib
 #include <RadioLib.h>
 
@@ -66,11 +66,6 @@ static void lora_phy_gpio_Callback (int gpioPin,
                                     void* userdata)
 {
     gpioIrqFn fn = gpio_funcs[gpioPin - 1];
-    printf("lora_phy_gpio_Callback called for pin %d\n", gpioPin);
-
-    // disable interrupt for stm32wle5xx
-    // assert(libtock_lora_phy_gpio_disable_interrupt(gpioPin) == RETURNCODE_SUCCESS);
-
     if (fn != NULL ) {
         fn();
     }
@@ -123,15 +118,10 @@ class TockRadioLibHal : public RadioLibHal {
       }
 
       libtock_lora_phy_gpio_read(pin, &value);
-      if (pin == 2) {
-        printf("Read GPIO %lu: %d\n", (unsigned long)pin, value);
-      }
-
       return value;
     }
 
     void attachInterrupt(uint32_t interruptNum, gpioIrqFn interruptCb, uint32_t mode) override {
-      printf("attach interrupt libtockhal radiolib; interruptnum: %lu\n", (unsigned long)interruptNum);
       if(interruptNum == RADIOLIB_NC) {
         return;
       }
@@ -153,10 +143,9 @@ class TockRadioLibHal : public RadioLibHal {
       libtock_lora_phy_gpio_disable_interrupt(interruptNum);
       libtock_lora_phy_gpio_enable_input(interruptNum, libtock_pull_down);
     }
-
+ 
     void delay(unsigned long ms) override {
      // if (ms > 4) ms -= 4; // compensate for function call overhead
-      // printf("Delaying for %lu ms\n", ms);
       #if !defined(RADIOLIB_CLOCK_DRIFT_MS)
       libtocksync_alarm_delay_ms(ms);
 #else
