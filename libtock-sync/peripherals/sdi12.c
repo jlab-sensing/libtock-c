@@ -45,8 +45,9 @@ returncode_t libtocksync_sdi12_write(uint8_t* tx_buffer, uint32_t len) {
     returncode_t ret; 
 
     tx_result.fired = false;
-
+    printf("A");
     ret = libtock_sdi12_write(sdi12_tx_done_cb, tx_buffer, len);
+    printf("B");
     if (ret != RETURNCODE_SUCCESS) return tx_result.ret;
 
     yield_for(&tx_result.fired);
