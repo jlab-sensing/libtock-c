@@ -7,6 +7,10 @@
 
 uint8_t data_buf[DATA_LEN]; 
 
+#define READ_LEN 16
+
+uint8_t read_buf[READ_LEN];
+
 int main(void) {
   returncode_t ret;
   printf("[TEST] SDI12\r\n");
@@ -38,14 +42,30 @@ int main(void) {
 
   // READ TEST //
   printf("Beginning read test...");
-  ret = libtocksync_sdi12_receive(data_buf, DATA_LEN);
+  ret = libtocksync_sdi12_receive(read_buf, READ_LEN);
   if (ret != RETURNCODE_SUCCESS) {
     printf("[FAIL] Unable to read SDI12 data.\n");
     return -1;
   } else {
-    printf("[PASS] Completed SDI12 receive -- (note this test does not \
-       confirm the accuracy of the received data).\n");
+    printf("[PASS] Completed SDI12 receive -- (note this test does not confirm the accuracy of the received data).\n");
   }
+  // Print as string
+  printf("Recieved Buffer as string: '");
+  for (int i = 0; i < 7; i++) {
+    char c = read_buf[i];
+    if (c == '\n') {
+        printf("\\n");
+    } else if (c == '\r') {
+        printf("\\r");
+    } else if (c == '\t') {
+        printf("\\t");
+    } else if (c < 32 || c > 126) {
+        printf("\\x%02X", (unsigned char)c);
+    } else {
+        printf("%c", c);
+    }
+  }
+  printf("'\n");
 
   printf("[SUCCESS] All SDI12 tests have passed.");
   return 0;
