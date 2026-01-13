@@ -51,3 +51,23 @@ returncode_t libtocksync_sdi12_write(uint8_t* tx_buffer, uint32_t len) {
     yield_for(&tx_result.fired);
     return tx_result.ret;   
 }
+
+returncode_t libtocksync_sdi12_write_and_receive(uint8_t* tx_buffer, uint32_t tx_len, uint8_t* rx_buffer, uint32_t rx_len) {
+    returncode_t ret;
+
+    // Start receive first
+    rx_result.fired = false;
+    ret = libtock_sdi12_receive(sdi12_receive_cb, rx_buffer, rx_len);
+    if (ret != RETURNCODE_SUCCESS) return ret;
+
+    // Then do write
+    tx_result.fired = false;
+    ret = libtock_sdi12_write(sdi12_tx_done_cb, tx_buffer, tx_len);
+    if (ret != RETURNCODE_SUCCESS) return ret;
+    yield_for(&tx_result.fired);
+    if (tx_result.ret != RETURNCODE_SUCCESS) return tx_result.ret;
+    printf("Yielding for SDI12 receive after write...\n");
+    // Wait for receive
+    yield_for(&rx_result.fired);
+    return rx_result.ret;
+}
