@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <string.h>
+#include <libtock-sync/services/alarm.h>
 
 #include <libtock-sync/peripherals/sdi12.h>
 
 #define CMD_LEN 4
 #define RESPONSE_LEN 11
-#define MEASUREMENT_LEN 20
+#define MEASUREMENT_LEN 60
 
 uint8_t cmd_buf[CMD_LEN]; 
 uint8_t response_buf[RESPONSE_LEN];
@@ -42,11 +43,19 @@ int main(void) {
   }
   printf("\n");
 
-  // Step 2: Wait for measurement (the response tells us how long)
-  // For now just wait 1 second
-  // TODO: parse the time from response
-  printf("Waiting for measurement...\n");
-  for (volatile int i = 0; i < 1000000; i++);  // simple delay
+  // Step 2: Parse time and wait for measurement
+  int wait_seconds = 0;
+  if (response_buf[5] >= '0' && response_buf[5] <= '9') {
+      wait_seconds = (response_buf[5] - '0') * 100;
+  }
+  if (response_buf[6] >= '0' && response_buf[6] <= '9') {
+      wait_seconds += (response_buf[6] - '0') * 10;
+  }
+  if (response_buf[7] >= '0' && response_buf[7] <= '9') {
+      wait_seconds += (response_buf[7] - '0');
+  }
+  printf("Waiting %d seconds for measurement...\n", wait_seconds);
+  libtocksync_alarm_delay_ms(wait_seconds * 1000); // delay in milliseconds
 
   // Step 3: Send data command 0D0!
   printf("Sending 0D0! command...\n");
