@@ -57,6 +57,9 @@ typedef void (*gpioIrqFn)(void);
 
 gpioIrqFn gpio_funcs[4] = { NULL, NULL, NULL, NULL};
 
+// This isn't needed for our board? 
+//#define RADIOLIB_HAL_CLOCK_DRIFT_MS 4 
+
 static void lora_phy_gpio_Callback (int gpioPin,
                                     __attribute__ ((unused)) int arg2,
                                     __attribute__ ((unused)) int arg3,
