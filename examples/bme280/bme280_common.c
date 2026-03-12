@@ -43,7 +43,7 @@ BME280_INTF_RET_TYPE bme280_i2c_read(uint8_t reg_addr, uint8_t* reg_data, uint32
   int status = i2c_master_write_sync(dev_addr << 1, &reg_addr, 1);
   status = i2c_master_read_sync(dev_addr << 1, reg_data, length);
   // printf("read sync after\n");
-  for (int i = 0; i < length; i++) {
+  for (uint32_tt i = 0; i < length; i++) {
     printf("%d", reg_data[i]);
   }
   printf("\n");
@@ -83,6 +83,8 @@ BME280_INTF_RET_TYPE bme280_i2c_write(uint8_t reg_addr, const uint8_t* reg_data,
  * Delay function map to COINES platform
  */
 void bme280_delay_us(uint32_t period, void* intf_ptr) {
+
+  (void)intf_ptr;
   // calculate us to ms
   uint32_t period_ms = period / 1000;
 
