@@ -9,21 +9,21 @@
 
 /**
  * @brief Required time between measurements
- * 
+ *
  * @see BME280Init
  */
 static uint32_t period = 0;
 
 /**
  * @brief Device definition
- * 
+ *
  * @see BME280Init
  */
 static struct bme280_dev dev;
 
 /**
  * @brief Device settings
- * 
+ *
  * @see BME280Init
  */
 static struct bme280_settings settings;
@@ -40,20 +40,20 @@ BME280Status BME280Init(void) {
   if (rslt != BME280_OK) {
     return rslt;
   }
-  //printf("pass 1\n");
+  // printf("pass 1\n");
 
   rslt = bme280_init(&dev);
   if (rslt != BME280_OK) {
     return rslt;
   }
-  //printf("pass 2\n");
+  // printf("pass 2\n");
 
   /* Always read the current settings before writing, especially when all the configuration is not modified */
   rslt = bme280_get_sensor_settings(&settings, &dev);
   if (rslt != BME280_OK) {
     return rslt;
   }
-  //printf("pass 3\n");
+  // printf("pass 3\n");
 
   /* Configuring the over-sampling rate, filter coefficient and standby time */
   /* Overwrite the desired settings */
@@ -87,10 +87,10 @@ BME280Status BME280Init(void) {
   return rslt;
 }
 
-BME280Status BME280MeasureAll(BME280Data *data) {
+BME280Status BME280MeasureAll(BME280Data* data) {
   int8_t rslt = BME280_E_NULL_PTR;
   uint8_t status_reg;
- 
+
   // trigger measurement
   rslt = bme280_set_sensor_mode(BME280_POWERMODE_FORCED, &dev);
   if (rslt != BME280_OK) {
@@ -103,8 +103,7 @@ BME280Status BME280MeasureAll(BME280Data *data) {
     return rslt;
   }
 
-  if (status_reg & BME280_STATUS_MEAS_DONE)
-  {
+  if (status_reg & BME280_STATUS_MEAS_DONE) {
     /* Measurement time delay given to read sample */
     dev.delay_us(period, dev.intf_ptr);
 
@@ -118,14 +117,14 @@ BME280Status BME280MeasureAll(BME280Data *data) {
   // adjust based on defines
 #ifndef BME280_DOUBLE_ENABLE
 /*
-  data->temperature = data->temperature / 100;
-  data->humidity = data->humidity / 1000;
-  */
+   data->temperature = data->temperature / 100;
+   data->humidity = data->humidity / 1000;
+ */
   data->temperature = data->temperature;
-  data->humidity = data->humidity;
+  data->humidity    = data->humidity;
 #endif
-    
-#ifdef BME280_64BIT_ENABLE 
+
+#ifdef BME280_64BIT_ENABLE
   data->pressure = data->pressure / 100;
 #endif
 

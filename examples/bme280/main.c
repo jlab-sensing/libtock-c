@@ -1,9 +1,11 @@
-#include <libtock-sync/services/alarm.h>
-#include <libtock/interface/led.h>
 #include <stdio.h>
-#include "bme280_sensor.h"
 #include <string.h>
+
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/console.h>
+#include <libtock/interface/led.h>
+
+#include "bme280_sensor.h"
 
 char hello[] = "Hello World!\r\n";
 
@@ -13,7 +15,7 @@ static void nop(
 
 
 int main(void) {
-  
+
   printf("bme280\n");
   BME280Status status = BME280Init();
   while (1) {
@@ -29,7 +31,6 @@ int main(void) {
     }
 
     printf("Pressure: %u, Temperature: %d, Humidity: %u\r\n", data.pressure,
-            data.temperature, data.humidity);
+           data.temperature, data.humidity);
   }
 }
-
