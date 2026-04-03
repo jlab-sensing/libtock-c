@@ -50,6 +50,19 @@ int main(void) {
   }
 
 
+  // repeat the same call with write_read
+  
+  buffer[0] = 0b00100000;
+  
+  status = i2c_master_write_read_sync(ads1219_addr, buffer, 1, 1);
+  if (status < 0) {
+    printf("could not write_read\n");
+  } else {
+    printf("success: %x\n", buffer[0]); 
+  }
+
+  return 0;
+
 
   // single byte write
 
