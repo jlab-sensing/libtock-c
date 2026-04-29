@@ -25,8 +25,8 @@
  * Copyright (c) 2026 jLab, UCSC
  */
 
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include <libtock-sync/services/alarm.h>
 #include <libtock/peripherals/gpio.h>
@@ -85,13 +85,13 @@ static bool test_driver_exists(void) {
   }
   printf("OK\n");
 
-  int count = 0;
+  int count       = 0;
   returncode_t rc = libtock_gpio_count(&count);
   printf("[TEST 1] GPIO pin count: %d  (expected %d)  %s\n",
          count, NUM_GPIO_PINS,
          (rc == RETURNCODE_SUCCESS && count == NUM_GPIO_PINS) ? "OK" : "FAIL");
 
-  return (rc == RETURNCODE_SUCCESS && count == NUM_GPIO_PINS);
+  return rc == RETURNCODE_SUCCESS && count == NUM_GPIO_PINS;
 }
 
 /* =========================================================
@@ -126,7 +126,7 @@ static void test_input_read(void) {
   for (uint32_t i = 0; i < NUM_INPUT_PINS; i++) {
     uint32_t pin = input_pins[i];
     libtock_gpio_enable_input(pin, libtock_pull_none);
-    int val = 0;
+    int val         = 0;
     returncode_t rc = libtock_gpio_read(pin, &val);
     printf("  Pin %lu (%s) = %d  %s\n",
            (unsigned long)pin, pin_names[pin], val,
@@ -143,7 +143,7 @@ static void test_periph_power_pin(void) {
   /* The kernel already drives PA9 HIGH before handing it to userspace.
    * Configure as input momentarily to sample the line. */
   libtock_gpio_enable_input(GPIO_PA9_PERIPH_PWR, libtock_pull_none);
-  int val = 0;
+  int val         = 0;
   returncode_t rc = libtock_gpio_read(GPIO_PA9_PERIPH_PWR, &val);
   printf("  PA9 = %d  %s\n", val,
          (rc == RETURNCODE_SUCCESS && val == 1) ? "OK (HIGH)" : "UNEXPECTED");
