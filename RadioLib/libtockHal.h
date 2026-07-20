@@ -26,7 +26,7 @@
 
 #ifndef TOCK_RADIOLIB_HAL_H
 #define TOCK_RADIOLIB_HAL_H
-
+ 
 // include RadioLib
 #include <RadioLib.h>
 
@@ -37,6 +37,7 @@
 #include "libtock/peripherals/gpio.h"
 #include "libtock-sync/services/alarm.h"
 #include "libtock/kernel/read_only_state.h"
+#include <assert.h>
 
 #define RADIOLIB_RADIO_BUSY   1
 #define RADIOLIB_RADIO_DIO_1  2
@@ -57,13 +58,14 @@ typedef void (*gpioIrqFn)(void);
 
 gpioIrqFn gpio_funcs[4] = { NULL, NULL, NULL, NULL};
 
+//#define RADIOLIB_HAL_CLOCK_DRIFT_MS 4 
+
 static void lora_phy_gpio_Callback (int gpioPin,
                                     __attribute__ ((unused)) int arg2,
                                     __attribute__ ((unused)) int arg3,
                                     void* userdata)
 {
     gpioIrqFn fn = gpio_funcs[gpioPin - 1];
-
     if (fn != NULL ) {
         fn();
     }
@@ -116,7 +118,6 @@ class TockRadioLibHal : public RadioLibHal {
       }
 
       libtock_lora_phy_gpio_read(pin, &value);
-
       return value;
     }
 
@@ -142,9 +143,10 @@ class TockRadioLibHal : public RadioLibHal {
       libtock_lora_phy_gpio_disable_interrupt(interruptNum);
       libtock_lora_phy_gpio_enable_input(interruptNum, libtock_pull_down);
     }
-
+ 
     void delay(unsigned long ms) override {
-#if !defined(RADIOLIB_CLOCK_DRIFT_MS)
+     // if (ms > 4) ms -= 4; // compensate for function call overhead
+      #if !defined(RADIOLIB_CLOCK_DRIFT_MS)
       libtocksync_alarm_delay_ms(ms);
 #else
       libtocksync_alarm_delay_ms(ms * 1000 / (1000 + RADIOLIB_CLOCK_DRIFT_MS));
@@ -152,6 +154,7 @@ class TockRadioLibHal : public RadioLibHal {
     }
 
     void delayMicroseconds(unsigned long us) override {
+ //     if (us < 10) return;
 #if !defined(RADIOLIB_CLOCK_DRIFT_MS)
       libtocksync_alarm_delay_ms(us / 1000);
 #else
@@ -191,7 +194,8 @@ class TockRadioLibHal : public RadioLibHal {
     }
 
     void spiTransfer(uint8_t* out, size_t len, uint8_t* in) {
-      libtocksync_lora_phy_read_write(out, in, len);
+      int ret = libtocksync_lora_phy_read_write(out, in, len);
+      assert(ret == 0);
     }
 
     void spiEndTransaction() {
