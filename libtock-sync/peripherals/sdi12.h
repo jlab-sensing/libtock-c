@@ -15,6 +15,7 @@ returncode_t libtocksync_sdi12_write_and_receive(uint8_t* tx_buffer, uint32_t tx
                                                  uint32_t rx_len);
 
 returncode_t libtocksync_sdi12_write(uint8_t* tx_buffer, uint32_t len);
+
 #ifdef __cplusplus
 }
 #endif

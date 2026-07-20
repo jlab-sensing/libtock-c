@@ -1,4 +1,4 @@
 SDI12
 ===
 
-This test performs an SDI12 read and write.
+Reads from a TEROS-12 sensor via SDI-12. Will NOT work for other sensors.
