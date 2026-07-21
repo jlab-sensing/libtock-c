@@ -50,9 +50,8 @@ int main(void) {
 
   // Setup the radio
   // The settings here work for the SparkFun LoRa Thing Plus - expLoRaBLE
-  node.scanGuard   = 30;
-  tock_module.XTAL = true;
-  state = tock_module.begin(915.0);
+  node.scanGuard = 30;
+  state = tock_module.begin(915.0, 125, 9, 7, RADIOLIB_SX126X_SYNC_WORD_PRIVATE, 10, 8, 0, false);
 
   if (state != RADIOLIB_ERR_NONE) {
     printf("begin failed, code %d\r\n", state);
