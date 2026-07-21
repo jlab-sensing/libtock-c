@@ -4,78 +4,66 @@
 #include <libtock-sync/peripherals/sdi12.h>
 #include <libtock-sync/services/alarm.h>
 
-#define CMD_LEN 4
-#define RESPONSE_LEN 11
-#define MEASUREMENT_LEN 20
+#define RESPONSE_LEN 32
+#define MEASUREMENT_LEN 32
 #define MEASUREMENT_INTERVAL_SECONDS 3
 
-uint8_t cmd_buf[CMD_LEN];
 uint8_t response_buf[RESPONSE_LEN];
 uint8_t measurement_buf[MEASUREMENT_LEN];
 
 int main(void) {
-  returncode_t ret;
-  if (!libtocksync_sdi12_exists()) {
-    printf("[FAIL] No SDI12 driver.\n");
-    return -2;
-  } else {
-    printf("[PASS] SDI12 driver exists.\n");
-  }
+  returncode_t ret = 0;
 
   while (1) {
-    // Step 1: Send measurement command 0M!
-    printf("Sending 0M! command...\n");
-    cmd_buf[0] = '0';
-    cmd_buf[1] = 'M';
-    cmd_buf[2] = '!';
-    ret        = libtocksync_sdi12_write_and_receive(cmd_buf, 3, response_buf, RESPONSE_LEN);
+    //
+    // Send measure command and wait for service request
+    //
+    // The read length is hardcoded to the length of the BREAK, Command, and
+    // response length.
+    //
+    // \00M!00013\r\n0\r\n
+    //
+
+    printf("Sending measure command...\n");
+    memset(response_buf, 0, RESPONSE_LEN);
+    ret = libtocksync_sdi12_write_and_receive((uint8_t*) "0M!", 3, response_buf, 14);
     if (ret != RETURNCODE_SUCCESS) {
-      printf("[FAIL] 0M! failed with code %d.\n", ret);
+      printf("[FAIL] Measure failed with code %d.\n", ret);
       return -1;
     }
-    printf("0M! response: ");
-    for (int i = 4; i < RESPONSE_LEN; i++) {
-      char c = response_buf[i];
-      if (c == '\0') continue;
-      if (c >= 32 && c <= 126) printf("%c", c);
-    }
-    printf("\n");
 
-    // Step 2: Parse time and wait for measurement
-    int wait_seconds = 0;
-    if (response_buf[5] >= '0' && response_buf[5] <= '9') {
-      wait_seconds = (response_buf[5] - '0') * 100;
+    // clear parity bit
+    for (int i = 0; i < RESPONSE_LEN; i++) {
+      response_buf[i] &= 0x7F;
     }
-    if (response_buf[6] >= '0' && response_buf[6] <= '9') {
-      wait_seconds += (response_buf[6] - '0') * 10;
-    }
-    if (response_buf[7] >= '0' && response_buf[7] <= '9') {
-      wait_seconds += (response_buf[7] - '0');
-    }
-    printf("Waiting %d seconds for measurement...\n", wait_seconds);
-    libtocksync_alarm_delay_ms(wait_seconds * 1000); // delay in milliseconds
 
-    // Step 3: Send data command 0D0!
-    printf("Sending 0D0! command...\n");
-    cmd_buf[0] = '0';
-    cmd_buf[1] = 'D';
-    cmd_buf[2] = '0';
-    cmd_buf[3] = '!';
-    ret        = libtocksync_sdi12_write_and_receive(cmd_buf, 4, measurement_buf, MEASUREMENT_LEN);
+    printf("Response:\n===%s===\n\n", response_buf + 1);
+
+    //
+    // Read measurement data
+    // The read length is hardcoded to the length of the BREAK, Command, and
+    // response length.
+    //
+    // \00D0!0+1837.02+19.1+0\r\n
+    //
+    //
+
+    printf("Reading data...\n");
+    memset(response_buf, 0, RESPONSE_LEN);
+    ret = libtocksync_sdi12_write_and_receive((uint8_t*) "0D0!", 4, response_buf, 23);
     if (ret != RETURNCODE_SUCCESS) {
       printf("[FAIL] 0D0! failed with code %d.\n", ret);
       return -1;
     }
-    printf("Measurement data: ");
-    for (int i = 5; i < MEASUREMENT_LEN; i++) {
-      char c = measurement_buf[i];
-      if (c == '\0') continue;
-      if (c == '\r' || c == '\n') break;
-      if (c >= 32 && c <= 126) printf("%c", c);
-    }
-    printf("\n\n");
 
-    printf("Waiting %d seconds before next measurement...\n", MEASUREMENT_INTERVAL_SECONDS);
+    // clear parity bit
+    for (int i = 0; i < RESPONSE_LEN; i++) {
+      response_buf[i] &= 0x7F;
+    }
+
+    printf("Data:\n===%s===\n\n", response_buf + 1);
+
+    printf("Waiting %d seconds before next measurement...\n\n", MEASUREMENT_INTERVAL_SECONDS);
     libtocksync_alarm_delay_ms(MEASUREMENT_INTERVAL_SECONDS * 1000);
   }
 }

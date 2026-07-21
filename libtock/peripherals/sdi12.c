@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <string.h>
-
 #include "sdi12.h"
 
 #include "syscalls/sdi12_syscalls.h"
@@ -55,22 +52,6 @@ returncode_t libtock_sdi12_write(libtock_sdi12_write_done_callback cb, uint8_t* 
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_sdi12_command_write(tx_buffer, len);
-  printf("libtock_sdi12_write command returned %d\n", ret);
+
   return ret;
-}
-
-returncode_t libtock_sdi12_get_measurement(libtock_sdi12_receive_callback cb, uint8_t* tx_buffer, uint8_t* rx_buffer) {
-  returncode_t ret;
-
-  ret = libtock_sdi12_set_receive_upcall(rx_done_upcall, cb);
-  if (ret != RETURNCODE_SUCCESS) return ret;
-
-  // allow rx_buffer to the kernel as rw buffer.
-  ret = libtock_sdi12_set_readwrite_allow_rx(rx_buffer, rx_buffer != NULL ? strlen((const char*)rx_buffer) : 0);
-  if (ret != RETURNCODE_SUCCESS) return ret;
-
-  ret = libtock_sdi12_set_readonly_allow_tx(tx_buffer, tx_buffer != NULL ? strlen((const char*)tx_buffer) : 0);
-  if (ret != RETURNCODE_SUCCESS) return ret;
-
-  return libtock_sdi12_command_get_measurement(tx_buffer, rx_buffer);
 }

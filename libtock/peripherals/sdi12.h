@@ -19,8 +19,6 @@ bool libtock_sdi12_exists(void);
 // Start a sdi12 receive operation. The reading will be provided via the callback.
 returncode_t libtock_sdi12_receive(libtock_sdi12_receive_callback cb, uint8_t* rx_buffer, uint32_t len);
 
-returncode_t libtock_sdi12_get_measurement(libtock_sdi12_receive_callback cb, uint8_t* tx_buffer, uint8_t* rx_buffer);
-
 // Write data to the sdi12 bus.
 returncode_t libtock_sdi12_write(libtock_sdi12_write_done_callback cb, uint8_t* tx_buffer, uint32_t len);
 
