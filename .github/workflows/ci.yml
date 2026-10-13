@@ -44,7 +44,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: carlosperate/arm-none-eabi-gcc-action@v1
         with:
-          release: 'latest'
+          release: '15.3.Rel1'
       - name: Install RISC-V toolchain (ubuntu latest)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         # Install latest RISC-V toolchains, uses xPack
